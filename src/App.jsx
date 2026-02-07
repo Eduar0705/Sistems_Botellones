@@ -5,6 +5,7 @@ import Navbar from './components/Navbar'
 import Sidebar from './components/Sidebar'
 import Dashboard from './pages/Dashboard'
 import Login from './pages/Login'
+import Configuracion from './pages/Configuracion'
 import './styles/App.css'
 
 // Contenido principal de la aplicación (usa el contexto de autenticación)
@@ -24,20 +25,46 @@ function AppContent() {
     logout()
   }
 
+  // Página de placeholder para módulos en desarrollo
+  const PlaceholderPage = ({ title }) => (
+    <div className="page-content placeholder-page">
+      <div className="placeholder-icon">🚧</div>
+      <h2>{title}</h2>
+      <p>Este módulo estará disponible próximamente</p>
+    </div>
+  )
+
   const renderPage = () => {
     switch (currentPage) {
       case 'dashboard':
         return <Dashboard />
       case 'clientes':
-        return <div className="page-content"><h2>Gestión de Clientes</h2><p>Próximamente...</p></div>
+        return <PlaceholderPage title="Gestión de Clientes" />
       case 'botellones':
-        return <div className="page-content"><h2>Inventario de Botellones</h2><p>Próximamente...</p></div>
+        return <PlaceholderPage title="Inventario de Botellones" />
       case 'entregas':
-        return <div className="page-content"><h2>Control de Entregas</h2><p>Próximamente...</p></div>
+        return <PlaceholderPage title="Control de Entregas" />
+      case 'ventas':
+        return <PlaceholderPage title="Gestión de Ventas" />
+      case 'proveedores':
+        return <PlaceholderPage title="Gestión de Proveedores" />
+      case 'servicios':
+        return <PlaceholderPage title="Gestión de Servicios" />
       case 'rutas':
-        return <div className="page-content"><h2>Gestión de Rutas</h2><p>Próximamente...</p></div>
+        return <PlaceholderPage title="Gestión de Rutas" />
       case 'reportes':
-        return <div className="page-content"><h2>Reportes</h2><p>Próximamente...</p></div>
+        return <PlaceholderPage title="Reportes y Estadísticas" />
+      // Páginas de configuración
+      case 'config-usuarios':
+        return <Configuracion section="usuarios" />
+      case 'config-moneda':
+        return <Configuracion section="moneda" />
+      case 'config-clave':
+        return <Configuracion section="clave" />
+      case 'config-precios':
+        return <Configuracion section="precios" />
+      case 'config-general':
+        return <Configuracion section="general" />
       default:
         return <Dashboard />
     }

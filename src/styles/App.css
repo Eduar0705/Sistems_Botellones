@@ -143,6 +143,42 @@ body {
   color: var(--text-secondary);
 }
 
+/* Placeholder page para módulos en desarrollo */
+.placeholder-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.placeholder-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+  animation: bounce 2s ease infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.placeholder-page h2 {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.placeholder-page p {
+  font-size: 16px;
+  color: var(--text-secondary);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .main-content {

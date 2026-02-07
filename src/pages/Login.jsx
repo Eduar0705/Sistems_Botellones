@@ -12,6 +12,8 @@ import {
   FiArrowRight
 } from 'react-icons/fi'
 import toast from 'react-hot-toast'
+import { useAuth } from '../context/AuthContext'
+import authService from '../services/authService'
 import '../styles/Login.css'
 
 function Login({ onLogin }) {
@@ -21,40 +23,47 @@ function Login({ onLogin }) {
   const [isLoading, setIsLoading] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
 
+  // Determinar si debemos usar la API o datos simulados
+  const USE_API = import.meta.env.VITE_USE_API === 'true'
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     
+    // Validaciones
     if (!email || !password) {
-      toast.error('Por favor completa todos los campos', {
-        icon: '⚠️'
-      })
+      toast.error('Por favor completa todos los campos', { icon: '⚠️' })
       return
     }
 
     if (!email.includes('@')) {
-      toast.error('Por favor ingresa un correo válido', {
-        icon: '📧'
-      })
+      toast.error('Por favor ingresa un correo válido', { icon: '📧' })
       return
     }
 
     if (password.length < 6) {
-      toast.error('La contraseña debe tener al menos 6 caracteres', {
-        icon: '🔐'
-      })
+      toast.error('La contraseña debe tener al menos 6 caracteres', { icon: '🔐' })
       return
     }
 
     setIsLoading(true)
-    
-    // Simulación de login
-    setTimeout(() => {
+
+    try {
+      if (USE_API) {
+        // Login real con API
+        const response = await authService.login(email, password)
+        toast.success('¡Bienvenido al sistema!', { icon: '👋' })
+        onLogin(response.user)
+      } else {
+        // Login simulado para desarrollo
+        await new Promise(resolve => setTimeout(resolve, 1500))
+        toast.success('¡Bienvenido al sistema!', { icon: '👋' })
+        onLogin({ email, name: 'Administrador' })
+      }
+    } catch (error) {
+      toast.error(error.message || 'Error al iniciar sesión', { icon: '❌' })
+    } finally {
       setIsLoading(false)
-      toast.success('¡Bienvenido al sistema!', {
-        icon: '👋'
-      })
-      onLogin({ email, name: 'Administrador' })
-    }, 1500)
+    }
   }
 
   const features = [
@@ -66,7 +75,7 @@ function Login({ onLogin }) {
 
   return (
     <div className="login-page">
-      {/* Left Panel - Branding */}
+      {/* Panel Izquierdo - Branding */}
       <div className="login-branding">
         <div className="branding-content">
           <div className="brand-header">
@@ -108,12 +117,12 @@ function Login({ onLogin }) {
         </div>
       </div>
       
-      {/* Right Panel - Login Form */}
+      {/* Panel Derecho - Formulario de Login */}
       <div className="login-form-panel">
         <div className="form-container">
           <div className="form-header">
             <div className="mobile-logo">
-              <img src="/Logo.webp" alt="H2OManager Logo" className="mobile-logo-img" />
+              <img src="/logo.png" alt="H2OManager Logo" className="mobile-logo-img" />
               <span>H2OManager</span>
             </div>
             <h2>Bienvenido de nuevo</h2>
@@ -134,6 +143,7 @@ function Login({ onLogin }) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className={email ? 'has-value' : ''}
+                  disabled={isLoading}
                 />
                 {email && email.includes('@') && (
                   <FiCheck className="input-valid-icon" />
@@ -154,6 +164,7 @@ function Login({ onLogin }) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className={password ? 'has-value' : ''}
+                  disabled={isLoading}
                 />
                 <button
                   type="button"

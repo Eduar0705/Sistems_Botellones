@@ -1,24 +1,27 @@
 import { useState } from 'react'
 import { Toaster } from 'react-hot-toast'
+import { AuthProvider, useAuth } from './context/AuthContext'
 import Navbar from './components/Navbar'
 import Sidebar from './components/Sidebar'
 import Dashboard from './pages/Dashboard'
 import Login from './pages/Login'
 import './styles/App.css'
 
-function App() {
+// Contenido principal de la aplicación (usa el contexto de autenticación)
+function AppContent() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [currentPage, setCurrentPage] = useState('dashboard')
-  const [user, setUser] = useState(null)
+  const { user, loginMock, logout, isAuthenticated } = useAuth()
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen)
 
   const handleLogin = (userData) => {
-    setUser(userData)
+    // Usar login simulado por ahora - usará login real cuando el backend esté listo
+    loginMock(userData)
   }
 
   const handleLogout = () => {
-    setUser(null)
+    logout()
   }
 
   const renderPage = () => {
@@ -40,42 +43,32 @@ function App() {
     }
   }
 
-  // Show login if not authenticated
-  if (!user) {
-    return (
-      <>
-        <Toaster 
-          position="top-right"
-          toastOptions={{
-            duration: 3000,
-            style: {
-              background: '#fff',
-              color: '#1e293b',
-              boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
-              borderRadius: '12px',
-              padding: '16px 20px',
-            },
-            success: {
-              iconTheme: {
-                primary: '#10b981',
-                secondary: '#fff',
-              },
-            },
-            error: {
-              iconTheme: {
-                primary: '#ef4444',
-                secondary: '#fff',
-              },
-            },
-          }}
-        />
-        <Login onLogin={handleLogin} />
-      </>
-    )
+  // Mostrar login si no está autenticado
+  if (!isAuthenticated) {
+    return <Login onLogin={handleLogin} />
   }
 
   return (
-    <>
+    <div className="app">
+      <Navbar toggleSidebar={toggleSidebar} user={user} onLogout={handleLogout} />
+      <div className="app-container">
+        <Sidebar 
+          isOpen={sidebarOpen} 
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+        />
+        <main className={`main-content ${sidebarOpen ? '' : 'expanded'}`}>
+          {renderPage()}
+        </main>
+      </div>
+    </div>
+  )
+}
+
+// Aplicación raíz con proveedores de contexto
+function App() {
+  return (
+    <AuthProvider>
       <Toaster 
         position="top-right"
         toastOptions={{
@@ -101,20 +94,8 @@ function App() {
           },
         }}
       />
-      <div className="app">
-        <Navbar toggleSidebar={toggleSidebar} user={user} onLogout={handleLogout} />
-        <div className="app-container">
-          <Sidebar 
-            isOpen={sidebarOpen} 
-            currentPage={currentPage}
-            setCurrentPage={setCurrentPage}
-          />
-          <main className={`main-content ${sidebarOpen ? '' : 'expanded'}`}>
-            {renderPage()}
-          </main>
-        </div>
-      </div>
-    </>
+      <AppContent />
+    </AuthProvider>
   )
 }
 

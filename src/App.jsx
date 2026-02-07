@@ -54,16 +54,7 @@ function AppContent() {
         return <PlaceholderPage title="Gestión de Rutas" />
       case 'reportes':
         return <PlaceholderPage title="Reportes y Estadísticas" />
-      // Páginas de configuración
-      case 'config-usuarios':
-        return <Configuracion section="usuarios" />
-      case 'config-moneda':
-        return <Configuracion section="moneda" />
-      case 'config-clave':
-        return <Configuracion section="clave" />
-      case 'config-precios':
-        return <Configuracion section="precios" />
-      case 'config-general':
+      case 'configuracion':
         return <Configuracion section="general" />
       default:
         return <Dashboard />

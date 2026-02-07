@@ -12,7 +12,11 @@ import {
   FiEye,
   FiEyeOff,
   FiCheck,
-  FiSave
+  FiSave,
+  FiPackage,
+  FiTruck,
+  FiPercent,
+  FiRefreshCw
 } from 'react-icons/fi'
 import toast from 'react-hot-toast'
 import '../styles/Configuracion.css'
@@ -33,12 +37,11 @@ function Configuracion({ section = 'general' }) {
     confirm: false
   })
 
-  // Estado para configuración de moneda
+  // Estado para configuración de moneda - Bolívares como moneda principal
   const [currencyConfig, setCurrencyConfig] = useState({
-    currency: 'USD',
-    symbol: '$',
-    position: 'before',
-    decimals: 2
+    monedaSecundaria: 'USD',
+    tasaCambio: 36.50,
+    iva: 16
   })
 
   // Estado para precios por litro
@@ -61,7 +64,7 @@ function Configuracion({ section = 'general' }) {
     { id: 'usuarios', icon: FiUser, label: 'Usuarios' },
     { id: 'moneda', icon: FiDollarSign, label: 'Moneda' },
     { id: 'clave', icon: FiLock, label: 'Cambiar Clave' },
-    { id: 'precios', icon: FiDroplet, label: 'Precios' },
+    { id: 'precios', icon: FiDroplet, label: 'Precios por Litro' },
     { id: 'general', icon: FiSettings, label: 'General' },
   ]
 
@@ -89,6 +92,13 @@ function Configuracion({ section = 'general' }) {
   const handlePricesSave = () => {
     toast.success('Precios actualizados correctamente')
   }
+
+  // Opciones de moneda secundaria
+  const monedasSecundarias = [
+    { codigo: 'USD', nombre: 'USD - Dólar', simbolo: '$' },
+    { codigo: 'EUR', nombre: 'EUR - Euro', simbolo: '€' },
+    { codigo: 'COP', nombre: 'COP - Peso Colombiano', simbolo: '$' },
+  ]
 
   // Renderizar contenido según la pestaña activa
   const renderContent = () => {
@@ -152,64 +162,74 @@ function Configuracion({ section = 'general' }) {
               <h2>Configuración de Moneda</h2>
             </div>
             
-            <div className="config-form">
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Moneda</label>
-                  <select 
-                    value={currencyConfig.currency}
-                    onChange={(e) => setCurrencyConfig({...currencyConfig, currency: e.target.value})}
-                  >
-                    <option value="USD">Dólar (USD)</option>
-                    <option value="EUR">Euro (EUR)</option>
-                    <option value="VES">Bolívar (VES)</option>
-                    <option value="COP">Peso Colombiano (COP)</option>
-                    <option value="MXN">Peso Mexicano (MXN)</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label>Símbolo</label>
-                  <input 
-                    type="text" 
-                    value={currencyConfig.symbol}
-                    onChange={(e) => setCurrencyConfig({...currencyConfig, symbol: e.target.value})}
-                    maxLength={3}
-                  />
-                </div>
-              </div>
-              
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Posición del símbolo</label>
-                  <select 
-                    value={currencyConfig.position}
-                    onChange={(e) => setCurrencyConfig({...currencyConfig, position: e.target.value})}
-                  >
-                    <option value="before">Antes del número ($100)</option>
-                    <option value="after">Después del número (100$)</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label>Decimales</label>
-                  <select 
-                    value={currencyConfig.decimals}
-                    onChange={(e) => setCurrencyConfig({...currencyConfig, decimals: parseInt(e.target.value)})}
-                  >
-                    <option value={0}>Sin decimales</option>
-                    <option value={2}>2 decimales</option>
-                    <option value={3}>3 decimales</option>
-                  </select>
+            <div className="config-form currency-form">
+              <div className="currency-info-box">
+                <FiDollarSign className="info-icon" />
+                <div>
+                  <strong>Moneda Principal: Bolívares (VES)</strong>
+                  <p>Todos los precios se manejan en Bolívares. Configure la tasa de cambio para convertir a dólares u otra moneda.</p>
                 </div>
               </div>
 
-              <div className="preview-box">
-                <span className="preview-label">Vista previa:</span>
-                <span className="preview-value">
-                  {currencyConfig.position === 'before' 
-                    ? `${currencyConfig.symbol}1,234.${'0'.repeat(currencyConfig.decimals)}`
-                    : `1,234.${'0'.repeat(currencyConfig.decimals)}${currencyConfig.symbol}`
-                  }
-                </span>
+              <div className="form-group">
+                <label>
+                  <FiDollarSign className="label-icon" />
+                  Moneda
+                </label>
+                <select 
+                  value={currencyConfig.monedaSecundaria}
+                  onChange={(e) => setCurrencyConfig({...currencyConfig, monedaSecundaria: e.target.value})}
+                  className="currency-select"
+                >
+                  {monedasSecundarias.map(moneda => (
+                    <option key={moneda.codigo} value={moneda.codigo}>
+                      {moneda.nombre}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>
+                  <FiRefreshCw className="label-icon" />
+                  Tasa de Cambio / Precio de la Moneda
+                </label>
+                <input 
+                  type="number" 
+                  step="0.01"
+                  value={currencyConfig.tasaCambio}
+                  onChange={(e) => setCurrencyConfig({...currencyConfig, tasaCambio: parseFloat(e.target.value)})}
+                  className="currency-input"
+                />
+                <span className="input-hint">Tasa de cambio o precio de referencia</span>
+              </div>
+
+              <div className="form-group">
+                <label>
+                  <FiPercent className="label-icon" />
+                  IVA (%)
+                </label>
+                <input 
+                  type="number" 
+                  step="1"
+                  min="0"
+                  max="100"
+                  value={currencyConfig.iva}
+                  onChange={(e) => setCurrencyConfig({...currencyConfig, iva: parseInt(e.target.value)})}
+                  className="currency-input"
+                />
+                <span className="input-hint">Porcentaje de impuesto IVA</span>
+              </div>
+
+              <div className="preview-box dark">
+                <div className="preview-row">
+                  <span className="preview-label">Ejemplo: 100 {currencyConfig.monedaSecundaria}</span>
+                  <span className="preview-value">= Bs. {(100 * currencyConfig.tasaCambio).toLocaleString('es-VE', { minimumFractionDigits: 2 })}</span>
+                </div>
+                <div className="preview-row">
+                  <span className="preview-label">Con IVA ({currencyConfig.iva}%):</span>
+                  <span className="preview-value">= Bs. {(100 * currencyConfig.tasaCambio * (1 + currencyConfig.iva/100)).toLocaleString('es-VE', { minimumFractionDigits: 2 })}</span>
+                </div>
               </div>
 
               <button className="btn-primary btn-save" onClick={handleCurrencySave}>
@@ -451,6 +471,3 @@ function Configuracion({ section = 'general' }) {
 }
 
 export default Configuracion
-
-// Importar FiPackage y FiTruck para los precios
-import { FiPackage as FiPackageIcon, FiTruck as FiTruckIcon } from 'react-icons/fi'
